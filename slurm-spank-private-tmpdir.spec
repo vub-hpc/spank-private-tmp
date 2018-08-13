@@ -3,7 +3,8 @@
 Summary: Slurm SPANK plugin for job private tmpdir
 Name: slurm-spank-private-tmpdir
 Version: 0.0.2
-Release: 1
+%global rel	1
+Release: %{rel}%{gittag}%{?dist}.ug
 License: GPL
 Group: System Environment/Base
 Source0: %{name}-%{version}.tar.gz
@@ -35,8 +36,8 @@ gcc -lslurm -o %{_builddir}/libslurm_dummy %{_builddir}/libslurm_dummy.c
 install -d %{buildroot}%{_libdir}/slurm
 install -d %{buildroot}%{_sysconfdir}/slurm/plugstack.conf.d
 install -m 755 private-tmpdir.so %{buildroot}%{_libdir}/slurm/
-install -m 644 plugstack.conf \
-    %{buildroot}%{_sysconfdir}/slurm/plugstack.conf.d/private-tmpdir.conf
+# install -m 644 plugstack.conf \
+#    %{buildroot}%{_sysconfdir}/slurm/plugstack.conf.d/private-tmpdir.conf
 
 %clean
 rm -rf %{buildroot}
@@ -45,9 +46,11 @@ rm -rf %{buildroot}
 %doc README LICENSE
 %defattr(-,root,root,-)
 %{_libdir}/slurm/private-tmpdir.so
-%config %{_sysconfdir}/slurm/plugstack.conf.d/private-tmpdir.conf
+#%config %{_sysconfdir}/slurm/plugstack.conf.d/private-tmpdir.conf
 
 %changelog
+* Tue Mar 20 2018 Andy Georges <andy.georges@ugent.be> - 0.0.2-1.ug
+- Adjustments for HPC Ugent
 * Thu Feb 02 2017 Pär Lindfors <paran@nsc.liu.se> - 0.0.2-1
 - Support multiple base parameters
 * Mon Feb 16 2015 Pär Lindfors <paran@nsc.liu.se> - 0.0.1-1
