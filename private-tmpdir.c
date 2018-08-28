@@ -23,6 +23,7 @@
 #include <slurm/spank.h>
 #include <unistd.h>
 #include <sched.h>
+#include <errno.h>
 
 SPANK_PLUGIN(private-tmpdir, 1);
 
@@ -72,11 +73,11 @@ int slurm_spank_job_epilog(spank_t sp, int ac, char **av)
     int rc = 0;
 
     // we need to redo this in the epilog, since the plugin is loaded again.
-    if(_tmpdir_init(sp, ac, av))	
+    if (_tmpdir_init(sp, ac, av))
         return -1;
 
     rc = _tmpdir_remove(sp, ac, av);
-    if(rc) {
+    if (rc) {
         slurm_error("private-tmpdir: removal of temporary directories failed");
         return rc;
     }
@@ -199,7 +200,7 @@ _remove(const char *fpath, const struct stat *sb,
 
     int rc = 0;
     slurm_debug3("private-tmpdir: checking path %s", fpath);
-        
+
     if (tflag == FTW_DP) {
         slurm_debug3("private-tmpdir: removing directory: %s", fpath);
         rc = rmdir(fpath);
@@ -216,24 +217,36 @@ _remove(const char *fpath, const struct stat *sb,
         slurm_debug3("private-tmpdir: unknown file type, will try unlinking: %s", fpath);
         rc = unlink(fpath);
     }
-   
+
     return rc;
 }
 
 
 static int _tmpdir_remove(spank_t sp, int ac, char**av)
 {
-    int rc = 0, i;
+    int rc = 0, rs = 0, i;
+    struct stat s = {0};
 
     slurm_debug2("private-tmpdir: removing %d bases", base_count);
     for(i = 0; i < base_count; i++) {
-        slurm_debug("private-tmpdir: removing tmp path: %s", base_paths[i]);
-        rc = nftw(base_paths[i], _remove, 16, FTW_FLAGS);
-        if(rc) {
-            slurm_debug("private-tmpdir: could not clean up directories, nftw failure at %s", base_paths[i]);
-            return rc;
+        rs = stat(base_paths[i], &s);
+        if (rs) {
+            if (errno == ENOENT) {
+                slurm_debug("private-tmpdir: removing tmp path: nothing to do, %s does not exist", base_paths[i]);
+            } else {
+                slurm_error("private-tmpdir: removing tmp path: stat %s failed with errno %d", base_paths[i], errno);
+                return -1;
+            }
+        } else {
+            slurm_debug("private-tmpdir: removing tmp path: %s", base_paths[i]);
+            rc = nftw(base_paths[i], _remove, 16, FTW_FLAGS);
+            if (rc) {
+                slurm_error("private-tmpdir: could not clean up directories, nftw failure at %s (rc %d)", base_paths[i], rc);
+                return rc;
+            }
         }
-    }    
+    }
+
     return 0;
 }
 
@@ -386,4 +399,3 @@ static int _tmpdir_init_opts(spank_t sp, int ac, char **av)
     }
     return 0;
 }
-
