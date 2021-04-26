@@ -3,11 +3,11 @@
 VERSION=$(grep "Version:.*[0-9]" slurm-spank-private-tmpdir.spec | tr -s " " |  awk '{print $2;}')
 RELEASE=$(grep "%global rel.*[-1-9]" slurm-spank-private-tmpdir.spec | tr -s " " | awk '{print $3}')
 
-if [ "${RELEASE}" -gt 1 ]; then
-    SUFFIX=${VERSION}-${RELEASE}
-else
+#if [ "${RELEASE}" -gt 1 ]; then
+    #SUFFIX=${VERSION}-${RELEASE}
+#else
     SUFFIX=${VERSION}
-fi
+#fi
 
 GITTAG=$(git log --format=%ct.%h -1)
 
