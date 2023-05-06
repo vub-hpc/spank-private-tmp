@@ -14,4 +14,4 @@ GITTAG=$(git log --format=%ct.%h -1)
 mkdir -p BUILD SOURCES SPECS RPMS BUILDROOT
 git archive --format=tar.gz -o "SOURCES/slurm-spank-private-tmpdir-${SUFFIX}.tar.gz" --prefix="slurm-spank-private-tmpdir-${SUFFIX}/" HEAD
 cp slurm-spank-private-tmpdir.spec "SPECS"
-rpmbuild --define "gittag ${GITTAG}" --define "_topdir $PWD" -ba SPECS/slurm-spank-private-tmpdir.spec
+rpmbuild --define 'debug_package %{nil}' --define "gittag ${GITTAG}" --define "_topdir $PWD" -ba SPECS/slurm-spank-private-tmpdir.spec
