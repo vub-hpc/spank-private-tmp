@@ -77,4 +77,4 @@ fi
 Versions
 --------
 
-Works with Slurm versions 19.05, 20.11, 22.05
+Works with Slurm versions 19.05, 20.11, 22.05, 23.02
